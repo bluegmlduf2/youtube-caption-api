@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  backend:
+    restart: unless-stopped
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    command: flask run --port=5000 --debug # 컨테이너가 실행되고 실행될 명령어
+    volumes:
+      - ./backend:/backend
+    ports:
+      - "5005:5000"
+    environment:
+      FLASK_APP: /backend/app.py
+      FLASK_RUN_HOST: 0.0.0.0
+      FLASK_CONFIG: local
+
+  frontend:
+    restart: unless-stopped # 정지없이 실행
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    user: "node"
+    command: /bin/bash -c "npm install && npm run dev" # 포트개방을 위한 --host 명령은 package.json의 dev명령에 추가함
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/frontend
+    ports:
+      - "5555:5173" # 5173포트를 사용하자 6000번 포트사용시 안전하지않다고 경고뜸
+    environment:
+      API_URL: http://host.docker.internal:5005
