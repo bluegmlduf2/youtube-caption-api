@@ -6,11 +6,14 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    command: flask run --port=5000 --debug # 컨테이너가 실행되고 실행될 명령어
+    command: tail -f /dev/null # 현재 프로세스를 무한 대기상태에 머물게 한다. 
+    # vscode에서 디버깅시 5005포트를 사용하기 때문에 아래의 줄은 커맨트아웃. 
+    # 또한 아래의 줄을 주석처리하면 당장 프로세스가 없어서 실행이 안된다 그래서 위의 무한 태기상태의 커맨드를 추가
+    # command: flask run --port=5005 --debug # 컨테이너가 실행되고 실행될 명령어
     volumes:
       - ./backend:/backend
     ports:
-      - "5005:5000"
+      - "5005:5005"
     environment:
       FLASK_APP: /backend/app.py
       FLASK_RUN_HOST: 0.0.0.0
