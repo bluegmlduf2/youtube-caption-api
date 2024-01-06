@@ -1,4 +1,5 @@
 import uuid
+from youtubeApp import get_caption_from_youtube
 
 from flask import Flask, jsonify, request
 from flask_cors import CORS
@@ -47,10 +48,10 @@ def ping_pong():
     return jsonify("pong!")
 
 
-# sanity check route
-# @app.route('/ping', methods=['GET'])
-# def ping_pong():
-#     return jsonify('pong!')
+@app.route("/caption", methods=["GET"])
+def get_caption():
+    get_caption_from_youtube()
+    return jsonify("hi")
 
 
 @app.route("/books", methods=["GET", "POST"])
