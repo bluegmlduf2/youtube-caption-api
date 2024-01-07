@@ -1,5 +1,6 @@
 import uuid
-from youtubeApp import get_caption_from_youtube
+from caption import get_caption_from_youtube
+from transalator import get_translated_text
 
 from flask import Flask, jsonify, request
 from flask_cors import CORS
@@ -50,8 +51,14 @@ def ping_pong():
 
 @app.route("/caption", methods=["GET"])
 def get_caption():
-    get_caption_from_youtube()
-    return jsonify("hi")
+    targetLanguage = request.args.get("language", "ko")
+
+    captionList = get_caption_from_youtube()
+    captionText = "/".join([captionList[0], captionList[1], captionList[2]])
+    translatedText = get_translated_text(captionText, targetLanguage)
+    translatedTextList = translatedText.split("/")
+    result = [{"en": en, "ko": ko} for en, ko in zip(captionList, translatedTextList)]
+    return jsonify({"captionList": result, "hi": "123"})
 
 
 @app.route("/books", methods=["GET", "POST"])

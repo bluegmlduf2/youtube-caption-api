@@ -3,8 +3,8 @@ import re
 
 
 def get_caption_from_youtube():
-    url = "http://youtube.com/watch?v=KM4Xe6Dlp0Y"  # Youtube URL
-    targetLanguage = "ko"  # 번역어
+    url = "https://www.youtube.com/watch?v=KM4Xe6Dlp0Y"  # Youtube URL
+    # targetLanguage = "ko"  # 번역어
     languageLength = 10  # 번역할 최소 문자길이
 
     try:
@@ -24,9 +24,10 @@ def get_caption_from_youtube():
                 for seg in englishCaption["segs"]:
                     text = re.sub(r"[^\w\s]", "", seg["utf8"])  # 특문제거
                     text = text.replace("\n", " ").replace("\\", "")  # 역슬래시 제거
-                    if len(text) > languageLength: # 10글자이상되는 문장만 포함
+                    if len(text) > languageLength:  # 10글자이상되는 문장만 포함
                         captionList.append(text)
-
-            print(1)
+            return captionList
+        else:
+            return None
     except Exception as err:
         print(err)

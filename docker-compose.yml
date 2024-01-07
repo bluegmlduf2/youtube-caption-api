@@ -18,6 +18,8 @@ services:
       FLASK_APP: /backend/app.py
       FLASK_RUN_HOST: 0.0.0.0
       FLASK_CONFIG: local
+      NAVER_CLIENT_KEY: ${NAVER_CLIENT_KEY}
+      NAVER_CLIENT_SECRET: ${NAVER_CLIENT_SECRET}
 
   frontend:
     restart: unless-stopped # 정지없이 실행
