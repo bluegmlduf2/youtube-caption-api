@@ -7,6 +7,7 @@ import json
 
 def get_translated_text(text, targetLanguage):
     try:
+        # TODO text한도5000자
         if text:
             load_dotenv()
             client_id = os.environ.get("NAVER_CLIENT_KEY")

@@ -1,6 +1,8 @@
 import uuid
 from caption import get_caption_from_youtube
-from transalator import get_translated_text
+from transalatorGoogle import get_translated_text
+from tokenizer import get_tokenized_words
+import random
 
 from flask import Flask, jsonify, request
 from flask_cors import CORS
@@ -51,11 +53,20 @@ def ping_pong():
 
 @app.route("/caption", methods=["GET"])
 def get_caption():
+    # TODO youtubeURL넘기도록 변경
     targetLanguage = request.args.get("language", "ko")
+    targetRange = request.args.get("range", None)  # 1 to 10
 
     captionList = get_caption_from_youtube()
-    captionText = "/".join([captionList[0], captionList[1], captionList[2]])
-    translatedText = get_translated_text(captionText, targetLanguage)
+
+    if targetRange is not None:
+        extractionRange = int(len(captionList) * int(targetRange) / 10)
+        captionList = random.sample(captionList, extractionRange)
+
+    # 해당 텍스트에서 핵심이 되는 단어리스트 추출기능
+    tokenizedWords = get_tokenized_words(captionList)
+
+    translatedText = get_translated_text(captionList, targetLanguage)
     translatedTextList = translatedText.split("/")
     result = [{"en": en, "ko": ko} for en, ko in zip(captionList, translatedTextList)]
     return jsonify({"captionList": result, "hi": "123"})
