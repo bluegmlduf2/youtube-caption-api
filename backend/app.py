@@ -68,14 +68,18 @@ def get_caption():
 
     resultCaptionList = []
     for text in translatedText:
-        origin = text.origin
-        target = ast.literal_eval(text.text)
-        resultCaptionList.append(
-            {
-                "origin": {"sentence": origin["1"], "words": origin["2"]},
-                "target": {"sentence": target["1"], "words": target["2"]},
-            }
-        )
+        try:
+            origin = text.origin
+            target = ast.literal_eval(text.text)
+            resultCaptionList.append(
+                {
+                    "origin": {"sentence": origin["1"], "words": origin["2"]},
+                    "target": {"sentence": target["1"], "words": target["2"]},
+                }
+            )
+        # 번역후의 문자열에 예상하지 못한 문자열이 포함되어 실행이 안되는 경우는 무시하고 다음 결과로 이동
+        except SyntaxError:
+            pass
 
     return jsonify(
         {
