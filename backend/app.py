@@ -5,7 +5,7 @@ from tokenizer import get_tokenized_words
 import random
 import ast
 
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, abort
 from flask_cors import CORS
 
 
@@ -54,11 +54,15 @@ def ping_pong():
 
 @app.route("/caption", methods=["GET"])
 def get_caption():
-    # TODO youtubeURL넘기도록 변경
     targetLanguage = request.args.get("language", "ko")
     targetRange = request.args.get("range", 1)  # 1 to 10
+    targetUrl = request.args.get("url")  # KM4Xe6Dlp0Y
 
-    captionList = get_caption_from_youtube()
+    if targetUrl is None:
+        # TODO 400 에러를 객체로 메세지를 전달
+        abort(400, description="Missing 'url' parameter")
+
+    captionList = get_caption_from_youtube(targetUrl)
 
     extractionRange = int(len(captionList) * int(targetRange) / 10)
     captionList = random.sample(captionList, extractionRange)
@@ -126,6 +130,18 @@ def single_book(book_id):
         remove_book(book_id)
         response_object["message"] = "Book removed!"
     return jsonify(response_object)
+
+
+@app.errorhandler(404)
+def not_found_error(error):
+    # TODO 로그추가
+    return "404 error..", 404
+
+
+@app.errorhandler(500)
+def internal_error(error):
+    # TODO 로그추가
+    return "server error..", 500
 
 
 if __name__ == "__main__":

@@ -1,21 +1,20 @@
 from pytube import YouTube
+from flask import abort
 import re
 
 
-def get_caption_from_youtube():
-    url = "https://www.youtube.com/watch?v=KM4Xe6Dlp0Y"  # Youtube URL
-    # targetLanguage = "ko"  # 번역어
+def get_caption_from_youtube(targetUrl):
     languageLength = 10  # 번역할 최소 문자길이
 
     try:
-        yt = YouTube(url)
+        yt = YouTube("https://www.youtube.com/watch?v=" + targetUrl)
         yt.bypass_age_gate()  # caption bugfix ref:https://github.com/pytube/pytube/issues/1674
 
         if yt and yt.captions:
             captions = yt.captions
+            # english cpation does not exist
             if not captions["en"]:
-                print("english cpation does not exist")
-                return
+                abort(400, description="English cpation are not available")
 
             englishCaptions = captions["en"].json_captions["events"]
             captionList = []
@@ -30,4 +29,5 @@ def get_caption_from_youtube():
         else:
             return None
     except Exception as err:
-        print(err)
+        print(err) # TODO 로그처리
+        raise err
