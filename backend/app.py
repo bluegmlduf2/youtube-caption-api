@@ -1,12 +1,14 @@
-import uuid
 from caption import get_caption_from_youtube
 from transalatorGoogle import get_translated_text
 from tokenizer import get_tokenized_words
+from logger import setup_logging
 import random
 import ast
-
 from flask import Flask, jsonify, request, abort
 from flask_cors import CORS
+
+# 로그 설정
+setup_logging()
 
 # instantiate the app
 app = Flask(__name__)
@@ -62,15 +64,13 @@ def user_custom_error(error):
 
 
 @app.errorhandler(404)
-def not_found_error(error):
-    # TODO 로그추가
-    app.logger.info("%s failed to log in", user.username)
+def not_found_error():
     return jsonify({"message": "404 Not Page founded"}), 404
 
 
-@app.errorhandler(500)
+@app.errorhandler(Exception)
 def internal_error(error):
-    # TODO 로그추가
+    app.logger.critical(error)  # TODO traceback으로 로그 메세지를 출력하는걸 고려
     return jsonify({"message": "500 Server Internal error"}), 500
 
 
