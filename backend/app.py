@@ -132,16 +132,22 @@ def single_book(book_id):
     return jsonify(response_object)
 
 
+@app.errorhandler(400)
+def user_custom_error(error):
+    # TODO 로그추가
+    return jsonify({"message": error.description}), 400
+
+
 @app.errorhandler(404)
 def not_found_error(error):
     # TODO 로그추가
-    return "404 error..", 404
+    return jsonify({"message": "404 Not Page founded"}), 404
 
 
 @app.errorhandler(500)
 def internal_error(error):
     # TODO 로그추가
-    return "server error..", 500
+    return jsonify({"message": "500 Server Internal error"}), 500
 
 
 if __name__ == "__main__":
