@@ -5,6 +5,7 @@ from logger import setup_logging
 from flask import Flask, jsonify, request, abort
 from flask_cors import CORS
 from dotenv import load_dotenv
+import traceback
 import random
 import ast
 import os
@@ -75,7 +76,7 @@ def not_found_error():
 
 @app.errorhandler(Exception)
 def internal_error(error):
-    app.logger.critical(error)  # TODO traceback으로 로그 메세지를 출력하는걸 고려
+    app.logger.critical(traceback.format_exc())
     return jsonify({"message": "500 Server Internal error"}), 500
 
 

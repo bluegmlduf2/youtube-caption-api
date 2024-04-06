@@ -47,18 +47,15 @@ def filter_pos(tokens):
 
 def get_tokenized_words(text_list):
     """주어진 텍스트 리스트에서 핵심 단어를 추출합니다."""
-    try:
-        key_words = []
+    key_words = []
 
-        for text in text_list:
-            tokens = tokenize_text(text)
-            tokens_without_stopwords = remove_stopwords(tokens)
-            filtered_words = filter_pos(tokens_without_stopwords)
+    for text in text_list:
+        tokens = tokenize_text(text)
+        tokens_without_stopwords = remove_stopwords(tokens)
+        filtered_words = filter_pos(tokens_without_stopwords)
 
-            key_words.append(
-                {"1": text, "2": filtered_words}
-            )  # 필터링된 단어과 문장을 key_words 리스트에 추가합니다.
+        key_words.append(
+            {"1": text, "2": filtered_words}
+        )  # 필터링된 단어과 문장을 key_words 리스트에 추가합니다.
 
-        return key_words
-    except Exception as e:
-        print(f"에러 : {e}")
+    return key_words
