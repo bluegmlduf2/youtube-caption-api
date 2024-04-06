@@ -2,20 +2,25 @@ from caption import get_caption_from_youtube
 from transalatorGoogle import get_translated_text
 from tokenizer import get_tokenized_words
 from logger import setup_logging
-import random
-import ast
 from flask import Flask, jsonify, request, abort
 from flask_cors import CORS
+from dotenv import load_dotenv
+import random
+import ast
+import os
 
 # 로그 설정
 setup_logging()
+
+# load env
+load_dotenv()
 
 # instantiate the app
 app = Flask(__name__)
 app.config.from_object(__name__)
 
-# enable CORS
-CORS(app, resources={r"/*": {"origins": "*"}})
+# enable CORS (모든 경로 "/*"에 대해서 cors적용)
+CORS(app, resources={r"/*": {"origins": [os.environ.get("FRONT_URL")]}})
 
 
 @app.route("/caption", methods=["GET"])
