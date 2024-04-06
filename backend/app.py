@@ -27,17 +27,20 @@ CORS(app, resources={r"/*": {"origins": [os.environ.get("FRONT_URL")]}})
 @app.route("/caption", methods=["GET"])
 def get_caption():
     targetLanguage = request.args.get("language", "ko")
-    targetRange = request.args.get("range", 1)  # 1 to 10
+    targetRange = request.args.get("range", 10)  # 1 to 50
     targetUrl = request.args.get("url")  # KM4Xe6Dlp0Y
 
+    if targetLanguage not in ["ko"]:
+        abort(400, description="Currently, translation is only available in Korean")
+
+    if 10 < targetRange > 50:
+        abort(400, description="The search range cannot exceed 50")
+
     if targetUrl is None:
-        # TODO 400 에러를 객체로 메세지를 전달
         abort(400, description="Missing 'url' parameter")
 
     captionList = get_caption_from_youtube(targetUrl)
-
-    extractionRange = int(len(captionList) * int(targetRange) / 10)
-    captionList = random.sample(captionList, extractionRange)
+    captionList = random.sample(captionList, (targetRange * 2))
 
     tokenizedWords = get_tokenized_words(captionList)
     translatedText = get_translated_text(tokenizedWords, targetLanguage)
