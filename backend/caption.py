@@ -8,10 +8,11 @@ import logging
 import re
 
 
-def get_caption_from_youtube(targetUrl):
+def get_caption_from_youtube(targetUrl, languageLength=0):
+    """유튜브로부터 자막리스트를 취득
+    :param int languageLength: 번역할 최소 문자길이
+    """
     try:
-        languageLength = 10  # 번역할 최소 문자길이
-
         _default_clients["ANDROID_MUSIC"] = _default_clients[
             "ANDROID_EMBED"
         ]  # 연령제한 버그때문에 사용기기설정 변경
@@ -35,7 +36,7 @@ def get_caption_from_youtube(targetUrl):
                         segs["utf8"] for segs in englishCaption["segs"]
                     )
                     # 특수문자 제거 및 역슬래시 제거
-                    cleaned_text = re.sub(r"[^\w\s]|\\", "", combined_text)
+                    cleaned_text = re.sub(r"[^\w\s]|\\|\n", "", combined_text)
                     # 길이가 languageLength 이상인 경우에만 결과 리스트에 추가
                     if len(cleaned_text) > languageLength:
                         captionList.append(cleaned_text)

@@ -39,7 +39,7 @@ def get_caption():
     if targetUrl is None:
         abort(400, description="Missing 'url' parameter")
 
-    captionList = get_caption_from_youtube(targetUrl)
+    captionList = get_caption_from_youtube(targetUrl, 10)
     captionList = random.sample(captionList, (targetRange * 2))
 
     tokenizedWords = get_tokenized_words(captionList)
@@ -63,6 +63,22 @@ def get_caption():
     return jsonify(
         {
             "captionList": resultCaptionList,
+        }
+    )
+
+
+@app.route("/download", methods=["GET"])
+def get_caption_download():
+    targetUrl = request.args.get("url")  # KM4Xe6Dlp0Y
+
+    if targetUrl is None:
+        abort(400, description="Missing 'url' parameter")
+
+    captionList = get_caption_from_youtube(targetUrl)
+
+    return jsonify(
+        {
+            "captionList": captionList,
         }
     )
 
