@@ -1,6 +1,7 @@
 from pytube import YouTube
 from flask import abort
 from pytube.exceptions import PytubeError
+from pytube.innertube import _default_clients
 from pytube import exceptions
 import traceback
 import logging
@@ -11,8 +12,10 @@ def get_caption_from_youtube(targetUrl):
     try:
         languageLength = 10  # 번역할 최소 문자길이
 
+        _default_clients["ANDROID_MUSIC"] = _default_clients[
+            "ANDROID_EMBED"
+        ]  # 연령제한 버그때문에 사용기기설정 변경
         yt = YouTube("https://www.youtube.com/watch?v=" + targetUrl)
-        yt.bypass_age_gate()  # caption bugfix ref:https://github.com/pytube/pytube/issues/1674
 
         if yt and yt.captions:
             captions = yt.captions
