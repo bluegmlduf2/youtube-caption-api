@@ -16,7 +16,7 @@ import TheWelcome from './components/TheWelcome.vue'
   <main>
     <!-- <TheWelcome /> -->
     <div class="text-orange-600">content</div>
-    <span class="material-symbols-outlined">search</span>
+    <span class="material-symbols-rounded">search</span>
   </main>
 </template>
 
