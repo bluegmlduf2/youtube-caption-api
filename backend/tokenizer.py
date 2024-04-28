@@ -11,7 +11,8 @@ nltk.download("averaged_perceptron_tagger")
 
 def tokenize_text(text):
     """문장을 토큰화합니다."""
-    return word_tokenize(text)
+    tokens = word_tokenize(text)
+    return [token for token in tokens if "'" not in token]
 
 
 def remove_stopwords(tokens):

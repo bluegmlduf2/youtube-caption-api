@@ -36,7 +36,7 @@ def get_caption_from_youtube(targetUrl, languageLength=0):
                         segs["utf8"] for segs in englishCaption["segs"]
                     )
                     # 특수문자 제거 및 역슬래시 제거
-                    cleaned_text = re.sub(r"[^\w\s]|\\|\n", "", combined_text)
+                    cleaned_text = re.sub(r"[^\w\s']|\\|\n", "", combined_text)
                     # 길이가 languageLength 이상인 경우에만 결과 리스트에 추가
                     if len(cleaned_text) > languageLength:
                         captionList.append(cleaned_text)
