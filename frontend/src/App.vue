@@ -5,7 +5,8 @@ import axios from 'axios'
 import { ref } from 'vue'
 import type { IYoutube } from '@/type'
 
-// TODO 임시로 넣음
+// TODO 음원다운로드해서 재생만 하는 기능넣기 ( 내가 사용할 용도 )
+// TODO 아래 URL임시로 넣음
 const searchWord = ref('https://www.youtube.com/watch?v=0lMC_eZZtWA&t=3s&ab_channel=BestEverFoodReviewShow')
 const errMsg = ref()
 const isDisabled = ref(false)
@@ -62,18 +63,18 @@ async function submitForm() {
     <section v-if="errMsg" class="mt-5 text-red-500 px-3">
       <span class="font-bold">{{ errMsg }}</span>
     </section>
-    <h2 class="text-2xl mt-7 mb-3">동영상정보</h2>
+    <h2 class="text-2xl mt-7 mb-3 text-color4 ml-3">동영상정보</h2>
     <section class="flex bg-color1 rounded-xl drop-shadow-2xl p-5">
       <div>
-        <img alt="Vue logo" class="logo" :src="youtubeInfo?.thumbnailUrl" width="125" height="125" />
+        <img class="w-44 min-w-40 rounded-md" alt="youtubethumbnail" :src="youtubeInfo?.thumbnailUrl"  />
       </div>
-      <div class="ml-5">
-        <div>{{ youtubeInfo?.title }}</div>
+      <div class="ml-5 flex flex-col justify-between">
+        <div class="text-lg md:text-xl font-bold line-clamp-2">{{ youtubeInfo?.title }}</div>
         <div>{{ youtubeInfo?.duration }}</div>  
-        <UserButton :type="'submit'" :disabled="isDisabled">Download</UserButton>
       </div>
+      <UserButton :type="'submit'" :disabled="isDisabled">Download</UserButton>
     </section>
-    <h2 class="text-2xl mt-7 mb-3">영어문장</h2>
+    <h2 class="text-2xl mt-7 mb-3 text-color4 ml-3">영어문장</h2>
     <section class="bg-color1 rounded-xl drop-shadow-2xl p-5">
       <Carousel v-if="youtubeInfo" :youtubeInfo="youtubeInfo" />
       <UserButton :type="'submit'" :disabled="isDisabled">Download</UserButton>
