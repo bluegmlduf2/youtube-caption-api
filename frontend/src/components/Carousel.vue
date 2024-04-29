@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import type { CaptionList } from '@/type'
+import type { IYoutube } from '@/type'
 
 defineProps<{
-  captionList: CaptionList
+  youtubeInfo: IYoutube
 }>()
 // https://swiperjs.com/vue
 // import Swiper core and required modules
@@ -37,7 +37,7 @@ const onSlideChange = (swiper: any) => {
     @swiper="onSwiper"
     @slideChange="onSlideChange"
   >
-    <swiper-slide v-for="(caption, i) of captionList.captionList" :key="i">
+    <swiper-slide v-for="(caption, i) of youtubeInfo.captionList" :key="i">
       <div class="flex justify-center items-center h-full">
         <div>
           <div>{{ caption.origin.sentence }}</div>

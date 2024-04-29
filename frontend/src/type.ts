@@ -1,4 +1,7 @@
-export interface CaptionList {
+export interface IYoutube {
+  title: string
+  thumbnailUrl: string
+  duration: string
   captionList: Caption[]
 }
 

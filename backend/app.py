@@ -1,4 +1,4 @@
-from caption import get_caption_from_youtube
+from caption import get_caption_from_youtube, get_info_from_youtube
 from transalatorGoogle import get_translated_text
 from tokenizer import get_tokenized_words
 from logger import setup_logging
@@ -40,6 +40,7 @@ def get_caption():
         abort(400, description="Missing 'url' parameter")
 
     captionList = get_caption_from_youtube(targetUrl, 10)
+    youtubeInfo = get_info_from_youtube(targetUrl)
     captionList = random.sample(captionList, (targetRange * 2))
 
     tokenizedWords = get_tokenized_words(captionList)
@@ -62,6 +63,9 @@ def get_caption():
 
     return jsonify(
         {
+            "title": youtubeInfo["title"],
+            "thumbnailUrl": youtubeInfo["thumbnailUrl"],
+            "duration": youtubeInfo["duration"],
             "captionList": resultCaptionList,
         }
     )
@@ -75,9 +79,13 @@ def get_caption_download():
         abort(400, description="Missing 'url' parameter")
 
     captionList = get_caption_from_youtube(targetUrl)
+    youtubeInfo = get_info_from_youtube(targetUrl)
 
     return jsonify(
         {
+            "title": youtubeInfo["title"],
+            "thumbnailUrl": youtubeInfo["thumbnailUrl"],
+            "duration": youtubeInfo["duration"],
             "captionList": captionList,
         }
     )

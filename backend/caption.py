@@ -6,6 +6,30 @@ from pytube import exceptions
 import traceback
 import logging
 import re
+import datetime
+
+
+def get_info_from_youtube(targetUrl):
+    """유튜브로부터 상세정보 취득"""
+    try:
+        _default_clients["ANDROID_MUSIC"] = _default_clients[
+            "ANDROID_EMBED"
+        ]  # 연령제한 버그때문에 사용기기설정 변경
+        yt = YouTube("https://www.youtube.com/watch?v=" + targetUrl)
+
+        if yt:
+            return {
+                "title": yt.title,
+                "thumbnailUrl": yt.thumbnail_url,
+                "duration": str(datetime.timedelta(seconds=yt.length)),
+            }
+        else:
+            abort(400, description="There are no subtitles for this YouTube video")
+    except exceptions.AgeRestrictedError:
+        abort(400, description="Video is age restricted")
+    except PytubeError:
+        logging.getLogger().error(traceback.format_exc())
+        abort(400, description="The YouTube video cannot be translated")
 
 
 def get_caption_from_youtube(targetUrl, languageLength=0):

@@ -3,12 +3,13 @@ import Carousel from './components/Carousel.vue'
 import UserButton from './components/UserButton.vue'
 import axios from 'axios'
 import { ref } from 'vue'
-import type { CaptionList } from '@/type'
+import type { IYoutube } from '@/type'
 
-const searchWord = ref()
+// TODO 임시로 넣음
+const searchWord = ref('https://www.youtube.com/watch?v=0lMC_eZZtWA&t=3s&ab_channel=BestEverFoodReviewShow')
 const errMsg = ref()
 const isDisabled = ref(false)
-const captionList = ref<CaptionList>()
+const youtubeInfo = ref<IYoutube>()
 
 async function submitForm() {
   errMsg.value=null
@@ -16,12 +17,13 @@ async function submitForm() {
   const youtubeUrl = new URLSearchParams(searchWord.value.split('?')[1]).get('v')
   const path = `${serverUrl}/caption?language=ko&url=${youtubeUrl}`
   isDisabled.value = true
+
   await axios
     .get(path,{
       timeout: 30000,
     })
     .then((res) => {
-      captionList.value = res.data
+      youtubeInfo.value = res.data
     })
     .catch((error) => {
       if(error.response?.data){
@@ -48,7 +50,7 @@ async function submitForm() {
         <input
           v-model="searchWord"
           type="search"
-          class="block w-full p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-color1 focus:border-color1"
+          class="block w-full p-4 pr-24 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-color1 focus:border-color1"
           placeholder="Input Youtube Url"
           required
         />
@@ -57,24 +59,23 @@ async function submitForm() {
     </form>
   </header>
   <main class="max-w-screen-xl mx-auto">
-    <section class="mt-5 text-red-500">
+    <section v-if="errMsg" class="mt-5 text-red-500 px-3">
       <span class="font-bold">{{ errMsg }}</span>
     </section>
-    <section class="flex bg-color1 mt-5 rounded-xl drop-shadow-2xl p-5">
+    <h2 class="text-2xl mt-7 mb-3">동영상정보</h2>
+    <section class="flex bg-color1 rounded-xl drop-shadow-2xl p-5">
       <div>
-        <img alt="Vue logo" class="logo" src="./assets/logo.svg" width="125" height="125" />
+        <img alt="Vue logo" class="logo" :src="youtubeInfo?.thumbnailUrl" width="125" height="125" />
       </div>
       <div class="ml-5">
-        <h2 class="text-2xl">유튜브제목</h2>
-        <div>상세정보</div>
-        <div>
-          <UserButton :type="'submit'" :disabled="isDisabled">Download</UserButton>
-        </div>
+        <div>{{ youtubeInfo?.title }}</div>
+        <div>{{ youtubeInfo?.duration }}</div>  
+        <UserButton :type="'submit'" :disabled="isDisabled">Download</UserButton>
       </div>
     </section>
-    <section class="bg-color1 mt-10 rounded-xl drop-shadow-2xl p-5">
-      <h2 class="text-2xl">영어문장..</h2>
-      <Carousel v-if="captionList" :captionList="captionList" />
+    <h2 class="text-2xl mt-7 mb-3">영어문장</h2>
+    <section class="bg-color1 rounded-xl drop-shadow-2xl p-5">
+      <Carousel v-if="youtubeInfo" :youtubeInfo="youtubeInfo" />
       <UserButton :type="'submit'" :disabled="isDisabled">Download</UserButton>
     </section>
   </main>
