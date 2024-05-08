@@ -7,6 +7,7 @@ import traceback
 import logging
 import re
 import datetime
+import io
 
 
 def get_info_from_youtube(targetUrl):
@@ -22,12 +23,45 @@ def get_info_from_youtube(targetUrl):
                 "title": yt.title,
                 "thumbnailUrl": yt.thumbnail_url,
                 "duration": str(datetime.timedelta(seconds=yt.length)),
+                "desc": yt.description,
             }
         else:
             abort(400, description="There are no subtitles for this YouTube video")
     except exceptions.AgeRestrictedError:
         abort(400, description="Video is age restricted")
     except PytubeError:
+        logging.getLogger().error(traceback.format_exc())
+        abort(400, description="The YouTube video cannot be translated")
+
+
+def get_audio_from_youtube(targetUrl):
+    """유튜브로부터 오디오 취득"""
+    try:
+        _default_clients["ANDROID_MUSIC"] = _default_clients[
+            "ANDROID_EMBED"
+        ]  # 연령제한 버그때문에 사용기기설정 변경
+        yt = YouTube("https://www.youtube.com/watch?v=" + targetUrl)
+
+        if yt:
+            # 메모리에 오디오 데이터를 저장
+            buffer = io.BytesIO()
+            selectedAudioStream = yt.streams.filter(only_audio=True).first()
+            selectedAudioStream.stream_to_buffer(buffer)
+            # TODO 파일크기가 10mb이상일때(로컬스토리지 초과할때)삭제
+            # 메모리에서 직접 읽어서 응답으로 반환
+            return (
+                buffer.getvalue(),
+                selectedAudioStream.mime_type,
+            )
+        else:
+            abort(400, description="There are no subtitles for this YouTube video")
+    except exceptions.AgeRestrictedError:
+        abort(400, description="Video is age restricted")
+    except PytubeError:
+        # RegexMatchError 수정
+        # /python3.9/site-packages/pytube/cipher.py
+        # - var_regex = re.compile(r"^\w+\W")
+        # + var_regex = re.compile(r"^\$*\w+\W")
         logging.getLogger().error(traceback.format_exc())
         abort(400, description="The YouTube video cannot be translated")
 

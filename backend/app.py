@@ -1,8 +1,12 @@
-from caption import get_caption_from_youtube, get_info_from_youtube
+from caption import (
+    get_caption_from_youtube,
+    get_info_from_youtube,
+    get_audio_from_youtube,
+)
 from transalatorGoogle import get_translated_text
 from tokenizer import get_tokenized_words
 from logger import setup_logging
-from flask import Flask, jsonify, request, abort
+from flask import Flask, jsonify, request, abort, send_file, Response
 from flask_cors import CORS
 from dotenv import load_dotenv
 import traceback
@@ -66,6 +70,7 @@ def get_caption():
             "title": youtubeInfo["title"],
             "thumbnailUrl": youtubeInfo["thumbnailUrl"],
             "duration": youtubeInfo["duration"],
+            "desc": youtubeInfo["desc"],
             "captionList": resultCaptionList,
         }
     )
@@ -88,6 +93,21 @@ def get_caption_download():
             "duration": youtubeInfo["duration"],
             "captionList": captionList,
         }
+    )
+
+
+@app.route("/audio", methods=["GET"])
+def get_caption_audio():
+    targetUrl = request.args.get("url")  # KM4Xe6Dlp0Y
+
+    if targetUrl is None:
+        abort(400, description="Missing 'url' parameter")
+
+    audioData, mineType = get_audio_from_youtube(targetUrl)
+
+    return Response(
+        audioData,
+        mimetype=mineType,
     )
 
 

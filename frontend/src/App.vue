@@ -3,7 +3,7 @@ import Carousel from './components/Carousel.vue'
 import UserButton from './components/UserButton.vue'
 import axios from 'axios'
 import { ref } from 'vue'
-import type { IYoutube } from '@/type'
+import type { IYoutube,IAudio } from '@/type'
 
 // TODO 음원다운로드해서 재생만 하는 기능넣기 ( 내가 사용할 용도 )
 // TODO 아래 URL임시로 넣음
@@ -11,6 +11,8 @@ const searchWord = ref('https://www.youtube.com/watch?v=0lMC_eZZtWA&t=3s&ab_chan
 const errMsg = ref()
 const isDisabled = ref(false)
 const youtubeInfo = ref<IYoutube>()
+const selectedAudioSrc = ref()
+const selectedAudioType = ref()
 
 async function submitForm() {
   errMsg.value=null
@@ -25,6 +27,29 @@ async function submitForm() {
     })
     .then((res) => {
       youtubeInfo.value = res.data
+    })
+    .catch((error) => {
+      if(error.response?.data){
+        errMsg.value = error.response.data.message
+        return
+      }
+      errMsg.value = error.message
+    })
+    .finally(() => {
+      isDisabled.value = false
+    })
+
+
+    const pathautdio = `${serverUrl}/audio?url=${youtubeUrl}`
+
+    await axios
+    .get(pathautdio,{
+      timeout: 30000,
+    })
+    .then((res) => {
+      selectedAudioType.value = res.headers['content-type']
+      const audioFile = new Blob([res.data], { type : selectedAudioType.value })
+      selectedAudioSrc.value = URL.createObjectURL(audioFile)
     })
     .catch((error) => {
       if(error.response?.data){
@@ -68,8 +93,9 @@ async function submitForm() {
       <div>
         <img class="w-44 min-w-40 rounded-md" alt="youtubethumbnail" :src="youtubeInfo?.thumbnailUrl"  />
       </div>
-      <div class="ml-5 flex flex-col justify-between">
+      <div class="ml-5 flex flex-col justify-between overflow-hidden">
         <div class="text-lg md:text-xl font-bold line-clamp-2">{{ youtubeInfo?.title }}</div>
+        <div class="line-clamp-2">{{ youtubeInfo?.desc }}</div>
         <div>{{ youtubeInfo?.duration }}</div>  
       </div>
       <UserButton :type="'submit'" :disabled="isDisabled">Download</UserButton>
@@ -77,6 +103,14 @@ async function submitForm() {
     <h2 class="text-2xl mt-7 mb-3 text-color4 ml-3">영어문장</h2>
     <section class="bg-color1 rounded-xl drop-shadow-2xl p-5">
       <Carousel v-if="youtubeInfo" :youtubeInfo="youtubeInfo" />
+      <UserButton :type="'submit'" :disabled="isDisabled">Download</UserButton>
+    </section>
+    <h2 class="text-2xl mt-7 mb-3 text-color4 ml-3">음원재생</h2>
+    <section class="bg-color1 rounded-xl drop-shadow-2xl p-5">
+      <audio controls>
+        <source :src="selectedAudioSrc" :type="selectedAudioType">
+      Your browser does not support the audio element.
+      </audio>
       <UserButton :type="'submit'" :disabled="isDisabled">Download</UserButton>
     </section>
   </main>

@@ -1,7 +1,13 @@
+export interface IAudio {
+  selectedAudio: string
+  audioList: Caption[]
+}
+
 export interface IYoutube {
   title: string
   thumbnailUrl: string
   duration: string
+  desc: string
   captionList: Caption[]
 }
 
