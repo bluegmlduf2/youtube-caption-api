@@ -47,11 +47,14 @@ def get_audio_from_youtube(targetUrl):
             buffer = io.BytesIO()
             selectedAudioStream = yt.streams.filter(only_audio=True).first()
             selectedAudioStream.stream_to_buffer(buffer)
+            buffer.seek(0)
+
             # TODO 파일크기가 10mb이상일때(로컬스토리지 초과할때)삭제
             # 메모리에서 직접 읽어서 응답으로 반환
             return (
-                buffer.getvalue(),
+                buffer,
                 selectedAudioStream.mime_type,
+                selectedAudioStream.default_filename,
             )
         else:
             abort(400, description="There are no subtitles for this YouTube video")

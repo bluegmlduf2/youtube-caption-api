@@ -103,11 +103,13 @@ def get_caption_audio():
     if targetUrl is None:
         abort(400, description="Missing 'url' parameter")
 
-    audioData, mineType = get_audio_from_youtube(targetUrl)
+    audioData, mineType, fileName = get_audio_from_youtube(targetUrl)
 
-    return Response(
+    return send_file(
         audioData,
+        as_attachment=True,
         mimetype=mineType,
+        download_name=fileName,
     )
 
 

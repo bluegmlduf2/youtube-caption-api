@@ -39,16 +39,17 @@ async function submitForm() {
       isDisabled.value = false
     })
 
-
     const pathautdio = `${serverUrl}/audio?url=${youtubeUrl}`
 
     await axios
     .get(pathautdio,{
       timeout: 30000,
+      responseType: 'arraybuffer',  // 바이너리 데이터를 위해 responseType을 'arraybuffer'로 설정
+      // JavaScript에서 Blob을 생성할 때, axios가 응답을 자동으로 JSON으로 변환하려 할 때 바이너리 데이터(예: 오디오 파일)를 적절히 처리하지 못해 문제가 발생할 수 있습니다. 
     })
     .then((res) => {
       selectedAudioType.value = res.headers['content-type']
-      const audioFile = new Blob([res.data], { type : selectedAudioType.value })
+      const audioFile =  new Blob([res.data], { type : selectedAudioType.value })
       selectedAudioSrc.value = URL.createObjectURL(audioFile)
     })
     .catch((error) => {
@@ -107,9 +108,7 @@ async function submitForm() {
     </section>
     <h2 class="text-2xl mt-7 mb-3 text-color4 ml-3">음원재생</h2>
     <section class="bg-color1 rounded-xl drop-shadow-2xl p-5">
-      <audio controls>
-        <source :src="selectedAudioSrc" :type="selectedAudioType">
-      Your browser does not support the audio element.
+      <audio controls :src="selectedAudioSrc" :type="selectedAudioType">
       </audio>
       <UserButton :type="'submit'" :disabled="isDisabled">Download</UserButton>
     </section>
