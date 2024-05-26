@@ -3,20 +3,18 @@ import Carousel from './components/Carousel.vue'
 import UserButton from './components/UserButton.vue'
 import axios from 'axios'
 import { ref } from 'vue'
-import type { IYoutube,IAudio } from '@/type'
+import type { IYoutube } from '@/type'
 
-// TODO 음원다운로드해서 재생만 하는 기능넣기 ( 내가 사용할 용도 )
-// TODO 아래 URL임시로 넣음
-const searchWord = ref('https://www.youtube.com/watch?v=0lMC_eZZtWA&t=3s&ab_channel=BestEverFoodReviewShow')
+const searchWord = ref('')
 const errMsg = ref()
 const isDisabled = ref(false)
 const youtubeInfo = ref<IYoutube>()
 const selectedAudioSrc = ref()
 const selectedAudioType = ref()
+const serverUrl=import.meta.env.VITE_API_URL
 
 async function submitForm() {
   errMsg.value=null
-  const serverUrl=import.meta.env.VITE_API_URL
   const youtubeUrl = new URLSearchParams(searchWord.value.split('?')[1]).get('v')
   const path = `${serverUrl}/caption?language=ko&url=${youtubeUrl}`
   isDisabled.value = true
@@ -63,6 +61,37 @@ async function submitForm() {
       isDisabled.value = false
     })
 }
+
+async function downloadCaption() {
+  const youtubeUrl = new URLSearchParams(searchWord.value.split('?')[1]).get('v')
+  const pathdownload = `${serverUrl}/download?url=${youtubeUrl}`
+
+  await axios
+    .get(pathdownload,{
+      timeout: 30000,
+    })
+    .then((res) => {
+      const fileName = `${res.data.title+'_'+Math.floor(Date.now() / 1000)}.txt`
+      const element = document.createElement('a');
+      const captionList=res.data.captionList
+      element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(captionList.join("\n")));
+      element.setAttribute('download', fileName);
+      element.style.display = 'none';
+      document.body.appendChild(element);
+      element.click();
+      document.body.removeChild(element);
+    })
+    .catch((error) => {
+      if(error.response?.data){
+        errMsg.value = error.response.data.message
+        return
+      }
+      errMsg.value = error.message
+    })
+    .finally(() => {
+      isDisabled.value = false
+    })
+}
 </script>
 
 <template>
@@ -85,34 +114,44 @@ async function submitForm() {
       </div>
     </form>
   </header>
+  
   <main class="max-w-screen-xl mx-auto">
     <section v-if="errMsg" class="mt-5 text-red-500 px-3">
       <span class="font-bold">{{ errMsg }}</span>
     </section>
-    <h2 class="text-2xl mt-7 mb-3 text-color4 ml-3">동영상정보</h2>
-    <section class="flex bg-color1 rounded-xl drop-shadow-2xl p-5">
-      <div>
-        <img class="w-44 min-w-40 rounded-md" alt="youtubethumbnail" :src="youtubeInfo?.thumbnailUrl"  />
-      </div>
-      <div class="ml-5 flex flex-col justify-between overflow-hidden">
-        <div class="text-lg md:text-xl font-bold line-clamp-2">{{ youtubeInfo?.title }}</div>
-        <div class="line-clamp-2">{{ youtubeInfo?.desc }}</div>
-        <div>{{ youtubeInfo?.duration }}</div>  
-      </div>
-      <UserButton :type="'submit'" :disabled="isDisabled">Download</UserButton>
-    </section>
-    <h2 class="text-2xl mt-7 mb-3 text-color4 ml-3">영어문장</h2>
-    <section class="bg-color1 rounded-xl drop-shadow-2xl p-5">
-      <Carousel v-if="youtubeInfo" :youtubeInfo="youtubeInfo" />
-      <UserButton :type="'submit'" :disabled="isDisabled">Download</UserButton>
-    </section>
-    <h2 class="text-2xl mt-7 mb-3 text-color4 ml-3">음원재생</h2>
-    <section class="bg-color1 rounded-xl drop-shadow-2xl p-5">
-      <audio controls :src="selectedAudioSrc" :type="selectedAudioType">
-      </audio>
-      <UserButton :type="'submit'" :disabled="isDisabled">Download</UserButton>
-    </section>
+    
+    <template v-if="youtubeInfo?.thumbnailUrl">
+      <h2 class="text-2xl mt-7 mb-3 text-color4 ml-3">Video Information</h2>
+      <section class="flex bg-color1 rounded-xl drop-shadow-2xl p-5">
+        <div>
+          <img class="w-44 min-w-40 rounded-md" alt="youtubethumbnail" :src="youtubeInfo.thumbnailUrl" />
+        </div>
+        <div class="ml-5 flex flex-col justify-between overflow-hidden">
+          <div class="text-lg md:text-xl font-bold line-clamp-2">{{ youtubeInfo?.title }}</div>
+          <div class="line-clamp-2">{{ youtubeInfo?.desc }}</div>
+          <div class="mt-3">
+            {{ youtubeInfo?.duration }}
+            <UserButton :disabled="isDisabled" @click="downloadCaption">Caption Download</UserButton>
+          </div>
+        </div>
+      </section>
+    </template>
+    
+    <template v-if="youtubeInfo">
+      <h2 class="text-2xl mt-7 mb-3 text-color4 ml-3">English Sentence</h2>
+      <section class="bg-color1 rounded-xl drop-shadow-2xl p-5">
+        <Carousel :youtubeInfo="youtubeInfo" />
+      </section>
+    </template>
+    
+    <template v-if="selectedAudioSrc">
+      <h2 class="text-2xl mt-7 mb-3 text-color4 ml-3">Audio Playback</h2>
+      <section class="bg-color1 rounded-xl drop-shadow-2xl p-5">
+        <audio controls :src="selectedAudioSrc" :type="selectedAudioType" class="w-full"></audio>
+      </section>
+    </template>
   </main>
 </template>
+
 
 <style scoped></style>
